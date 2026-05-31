@@ -19,12 +19,13 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
+    # 3. NuGet aracını kurar
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v2
       with:
         nuget-version: 'latest'
 
-    # 3. Bağımlılıkları tek tek yükler
+    # 4. Bağımlılıkları tek tek yükler
     - name: Restore NuGet Packages
       run: |
         nuget restore REE.Fonts.Cryptor/REE.Fonts.Cryptor.sln
@@ -32,19 +33,19 @@ jobs:
         nuget restore REE.Rom.Cryptor/REE.Rom.Cryptor.sln
         nuget restore REE.Unpacker/REE.Unpacker.sln
 
-    # 4. Çözümleri tek tek derler ve çıktıları "Dagitim" klasörüne toplar
+    # 5. Tüm projeleri mutlak "Dagitim Klasoru" içine derler
     - name: Build Solutions
       run: |
-        msbuild REE.Fonts.Cryptor/REE.Fonts.Cryptor.sln /p:Configuration=Release /p:OutDir=../Dagitim/
-        msbuild REE.Packer/REE.Packer.sln /p:Configuration=Release /p:OutDir=../Dagitim/
-        msbuild REE.Rom.Cryptor/REE.Rom.Cryptor.sln /p:Configuration=Release /p:OutDir=../Dagitim/
-        msbuild REE.Unpacker/REE.Unpacker.sln /p:Configuration=Release /p:OutDir=../Dagitim/
+        msbuild REE.Fonts.Cryptor/REE.Fonts.Cryptor.sln /p:Configuration=Release /p:OutDir="${{ github.workspace }}\Dagitim\\"
+        msbuild REE.Packer/REE.Packer.sln /p:Configuration=Release /p:OutDir="${{ github.workspace }}\Dagitim\\"
+        msbuild REE.Rom.Cryptor/REE.Rom.Cryptor.sln /p:Configuration=Release /p:OutDir="${{ github.workspace }}\Dagitim\\"
+        msbuild REE.Unpacker/REE.Unpacker.sln /p:Configuration=Release /p:OutDir="${{ github.workspace }}\Dagitim\\"
 
-    # 5. Sunucuya Inno Setup kurulum aracını yükler
+    # 6. Sunucuya Inno Setup kurulum aracını yükler
     - name: Inno Setup Kur
       run: choco install innosetup -y
 
-    # 6. Kurulum betiğini "Dagitim" klasörüne bakacak şekilde oluşturur ve paketler
+    # 7. Kurulum betiğini mutlak yola göre oluşturur ve paketler
     - name: Kurulum Sihirbazini (Setup.exe) Olustur
       run: |
         cat << 'EOF' > iscript.iss
@@ -67,7 +68,7 @@ jobs:
         iscc iscript.iss
       shell: bash
 
-    # 7. Oluşan Setup.exe dosyasını indirme paneline ekler
+    # 8. Oluşan Setup.exe dosyasını indirme paneline ekler
     - name: Kurulum Dosyasini Sunucuya Yukle
       uses: actions/upload-artifact@v4
       with:
