@@ -37,4 +37,13 @@ jobs:
         nuget restore REE.Packer/REE.Packer.sln
         nuget restore REE.Rom.Cryptor/REE.Rom.Cryptor.sln
         nuget restore REE.Unpacker/REE.Unpacker.sln
+            # Derlenen tüm executable (EXE) ve dinamik kütüphane (DLL) dosyalarını otomatik bulur ve paketler
+    - name: Derleme Ciktilarini Sunucuya Yukle
+      uses: actions/upload-artifact@v4
+      with:
+        name: REE-PAK-Tool-Ciktilari
+        path: |
+          **/bin/Release/
+          **/bin/Debug/
+
 
