@@ -32,19 +32,19 @@ jobs:
         nuget restore REE.Rom.Cryptor/REE.Rom.Cryptor.sln
         nuget restore REE.Unpacker/REE.Unpacker.sln
 
-    # 4. Çözümleri tek tek derler
+    # 4. Çözümleri tek tek derler ve çıktıları "Dagitim" klasörüne toplar
     - name: Build Solutions
       run: |
-        msbuild REE.Fonts.Cryptor/REE.Fonts.Cryptor.sln /p:Configuration=Release
-        msbuild REE.Packer/REE.Packer.sln /p:Configuration=Release
-        msbuild REE.Rom.Cryptor/REE.Rom.Cryptor.sln /p:Configuration=Release
-        msbuild REE.Unpacker/REE.Unpacker.sln /p:Configuration=Release
+        msbuild REE.Fonts.Cryptor/REE.Fonts.Cryptor.sln /p:Configuration=Release /p:OutDir=../Dagitim/
+        msbuild REE.Packer/REE.Packer.sln /p:Configuration=Release /p:OutDir=../Dagitim/
+        msbuild REE.Rom.Cryptor/REE.Rom.Cryptor.sln /p:Configuration=Release /p:OutDir=../Dagitim/
+        msbuild REE.Unpacker/REE.Unpacker.sln /p:Configuration=Release /p:OutDir=../Dagitim/
 
-    # 5. Sunucuye Inno Setup kurulum aracını yükler
+    # 5. Sunucuya Inno Setup kurulum aracını yükler
     - name: Inno Setup Kur
       run: choco install innosetup -y
 
-    # 6. Kurulum betiğini güvenli formatta oluşturur ve paketler
+    # 6. Kurulum betiğini "Dagitim" klasörüne bakacak şekilde oluşturur ve paketler
     - name: Kurulum Sihirbazini (Setup.exe) Olustur
       run: |
         cat << 'EOF' > iscript.iss
@@ -57,10 +57,7 @@ jobs:
         OutputBaseFilename=REE_PAK_Tool_Kurulum
         
         [Files]
-        Source: "REE.Fonts.Cryptor\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
-        Source: "REE.Packer\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
-        Source: "REE.Rom.Cryptor\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
-        Source: "REE.Unpacker\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+        Source: "Dagitim\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
         
         [Icons]
         Name: "{autoprograms}\REE PAK Tool\REE Unpacker"; Filename: "{app}\REE.Unpacker.exe"
