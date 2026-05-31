@@ -1,7 +1,7 @@
 name: Otomatik Derleme
 
 on:
-  workflow_dispatch: # Manuel olarak başlatabilmek için
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,24 +11,22 @@ jobs:
     - name: Kodu Klonla
       uses: actions/checkout@v4
 
-    - name: MSBuild Kurulumu
+    - name: .NET Framework ve MSBuild Kurulumu
       uses: microsoft/setup-msbuild@v2
 
-    - name: Nuget Paketlerini Yukle
+    - name: NuGet Kurulumu
       uses: NuGet/setup-nuget@v2
-      with:
-        nuget-version: 'latest'
 
-    - name: Paketleri Geri Yukle (Restore)
+    - name: Paketleri Yeniden Yükle
       run: nuget restore REE.PAK.Tool.sln
 
-    - name: Projeyi Derle (Build)
+    - name: MSBuild ile Derle
       run: msbuild REE.PAK.Tool.sln /p:Configuration=Release /p:Platform="Any CPU"
 
-    - name: Hazir Dosyalari Paketle (Artifact)
+    - name: Dosyalari Yukle
       uses: actions/upload-artifact@v4
       with:
         name: REE-PAK-Tool-Derlenmis
         path: |
-          **/bin/Release/**/*.exe
-          **/bin/Release/**/*.dll
+          **/bin/Release/*.exe
+          **/bin/Release/*.dll
