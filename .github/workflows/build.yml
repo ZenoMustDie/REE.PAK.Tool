@@ -40,36 +40,37 @@ jobs:
         msbuild REE.Rom.Cryptor/REE.Rom.Cryptor.sln /p:Configuration=Release
         msbuild REE.Unpacker/REE.Unpacker.sln /p:Configuration=Release
 
-    # 5. Sunucuya Inno Setup kurulum aracını yükler
+    # 5. Sunucuye Inno Setup kurulum aracını yükler
     - name: Inno Setup Kur
       run: choco install innosetup -y
 
-    # 6. Kurulum sihirbazını (Setup.exe) otomatik olarak paketler ve oluşturur
+    # 6. Kurulum betiğini güvenli formatta oluşturur ve paketler
     - name: Kurulum Sihirbazini (Setup.exe) Olustur
       run: |
-        echo [Setup] > iscript.iss
-        echo AppName=REE PAK Tool >> iscript.iss
-        echo AppVersion=1.0 >> iscript.iss
-        echo DefaultDirName={autopf}\REE PAK Tool >> iscript.iss
-        echo DefaultGroupName=REE PAK Tool >> iscript.iss
-        echo OutputDir=. >> iscript.iss
-        echo OutputBaseFilename=REE_PAK_Tool_Kurulum >> iscript.iss
-        echo [Files] >> iscript.iss
-        echo Source: "REE.Fonts.Cryptor\bin\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
-        echo Source: "REE.Fonts.Cryptor\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
-        echo Source: "REE.Packer\bin\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
-        echo Source: "REE.Packer\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
-        echo Source: "REE.Rom.Cryptor\bin\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
-        echo Source: "REE.Rom.Cryptor\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
-        echo Source: "REE.Unpacker\bin\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
-        echo Source: "REE.Unpacker\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
-        echo [Icons] >> iscript.iss
-        echo Name: "{autoprograms}\REE PAK Tool\REE Unpacker"; Filename: "{app}\REE.Unpacker.exe" >> iscript.iss
-        echo Name: "{autodesktop}\REE Unpacker"; Filename: "{app}\REE.Unpacker.exe" >> iscript.iss
+        cat << 'EOF' > iscript.iss
+        [Setup]
+        AppName=REE PAK Tool
+        AppVersion=1.0
+        DefaultDirName={autopf}\REE PAK Tool
+        DefaultGroupName=REE PAK Tool
+        OutputDir=.
+        OutputBaseFilename=REE_PAK_Tool_Kurulum
+        
+        [Files]
+        Source: "REE.Fonts.Cryptor\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+        Source: "REE.Packer\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+        Source: "REE.Rom.Cryptor\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+        Source: "REE.Unpacker\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+        
+        [Icons]
+        Name: "{autoprograms}\REE PAK Tool\REE Unpacker"; Filename: "{app}\REE.Unpacker.exe"
+        Name: "{autodesktop}\REE Unpacker"; Filename: "{app}\REE.Unpacker.exe"
+        EOF
+        
         iscc iscript.iss
-      shell: cmd
+      shell: bash
 
-    # 7. Olusacak Setup.exe dosyasını indirme paneline ekler
+    # 7. Oluşan Setup.exe dosyasını indirme paneline ekler
     - name: Kurulum Dosyasini Sunucuya Yukle
       uses: actions/upload-artifact@v4
       with:
