@@ -11,11 +11,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    # Kodu sunucuya indirir
+    # 1. Kodu sunucuya indirir
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # MSBuild ve NuGet araçlarını kurar
+    # 2. MSBuild ve NuGet araçlarını kurar
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
@@ -24,7 +24,7 @@ jobs:
       with:
         nuget-version: 'latest'
 
-    # Bağımlılıkları yükler
+    # 3. Bağımlılıkları tek tek yükler
     - name: Restore NuGet Packages
       run: |
         nuget restore REE.Fonts.Cryptor/REE.Fonts.Cryptor.sln
@@ -32,11 +32,15 @@ jobs:
         nuget restore REE.Rom.Cryptor/REE.Rom.Cryptor.sln
         nuget restore REE.Unpacker/REE.Unpacker.sln
 
-    # Projeyi derler
-    - name: Build Solution
-      run: msbuild /p:Configuration=Release
+    # 4. Çözümleri tek tek derler (Hatanın düzeltildiği kısım)
+    - name: Build Solutions
+      run: |
+        msbuild REE.Fonts.Cryptor/REE.Fonts.Cryptor.sln /p:Configuration=Release
+        msbuild REE.Packer/REE.Packer.sln /p:Configuration=Release
+        msbuild REE.Rom.Cryptor/REE.Rom.Cryptor.sln /p:Configuration=Release
+        msbuild REE.Unpacker/REE.Unpacker.sln /p:Configuration=Release
 
-    # Geliştirilmiş Arama: Klasör yapısı ne olursa olsun tüm EXE ve DLL dosyalarını bulur
+    # 5. Oluşan tüm EXE ve DLL dosyalarını paketler
     - name: Derleme Ciktilarini Sunucuya Yukle
       uses: actions/upload-artifact@v4
       with:
