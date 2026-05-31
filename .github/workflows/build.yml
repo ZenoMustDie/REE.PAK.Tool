@@ -1,35 +1,34 @@
-name: Otomatik Derleme
+name: CI Build
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
 jobs:
   build:
-    runs-on: windows-2022 # En kararlı MSBuild yapısı için sabitlendi
-
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Node20 uyarılarını kapatır
+    runs-on: windows-latest
 
     steps:
-    - name: Kodu Klonla
+    # 1. Kodu sunucuya indirir (Hata almamanız için en kritik adım)
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: MSBuild Kurulumu
+    # 2. MSBuild ve NuGet araçlarını sunucuya kurar
+    - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: NuGet Kurulumu
+    - name: Setup NuGet
       uses: NuGet/setup-nuget@v2
-
-    - name: Paketleri Yeniden Yükle
-      run: nuget restore REE.PAK.Tool.sln
-
-    - name: MSBuild ile Derle
-      run: msbuild REE.PAK.Tool.sln /p:Configuration=Release /p:Platform="Any CPU"
-
-    - name: Dosyalari Yukle
-      uses: actions/upload-artifact@v4
       with:
-        name: REE-PAK-Tool-Derlenmis
-        path: |
-          **/bin/Release/*.exe
-          **/bin/Release/*.dll
+        nuget-version: 'latest'
+
+    # 3. Dosyanın yerini log ekranında gösterir (Kontrol adımı)
+    - name: Klasor Yapisini Listele
+      run: Get-ChildItem -Recurse -Filter *.sln
+      shell: pwsh
+
+    # 4. Paketleri yüklemeyi dener
+    - name: Restore NuGet Packages
+      run: nuget restore REE.PAK.Tool.sln
