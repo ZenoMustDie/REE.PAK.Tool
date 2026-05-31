@@ -5,13 +5,16 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022 # En kararlı MSBuild yapısı için sabitlendi
+
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Node20 uyarılarını kapatır
 
     steps:
     - name: Kodu Klonla
       uses: actions/checkout@v4
 
-    - name: .NET Framework ve MSBuild Kurulumu
+    - name: MSBuild Kurulumu
       uses: microsoft/setup-msbuild@v2
 
     - name: NuGet Kurulumu
