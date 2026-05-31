@@ -32,7 +32,7 @@ jobs:
         nuget restore REE.Rom.Cryptor/REE.Rom.Cryptor.sln
         nuget restore REE.Unpacker/REE.Unpacker.sln
 
-    # 4. Çözümleri tek tek derler (Hatanın düzeltildiği kısım)
+    # 4. Çözümleri tek tek derler
     - name: Build Solutions
       run: |
         msbuild REE.Fonts.Cryptor/REE.Fonts.Cryptor.sln /p:Configuration=Release
@@ -40,11 +40,38 @@ jobs:
         msbuild REE.Rom.Cryptor/REE.Rom.Cryptor.sln /p:Configuration=Release
         msbuild REE.Unpacker/REE.Unpacker.sln /p:Configuration=Release
 
-    # 5. Oluşan tüm EXE ve DLL dosyalarını paketler
-    - name: Derleme Ciktilarini Sunucuya Yukle
+    # 5. Sunucuya Inno Setup kurulum aracını yükler
+    - name: Inno Setup Kur
+      run: choco install innosetup -y
+
+    # 6. Kurulum sihirbazını (Setup.exe) otomatik olarak paketler ve oluşturur
+    - name: Kurulum Sihirbazini (Setup.exe) Olustur
+      run: |
+        echo [Setup] > iscript.iss
+        echo AppName=REE PAK Tool >> iscript.iss
+        echo AppVersion=1.0 >> iscript.iss
+        echo DefaultDirName={autopf}\REE PAK Tool >> iscript.iss
+        echo DefaultGroupName=REE PAK Tool >> iscript.iss
+        echo OutputDir=. >> iscript.iss
+        echo OutputBaseFilename=REE_PAK_Tool_Kurulum >> iscript.iss
+        echo [Files] >> iscript.iss
+        echo Source: "REE.Fonts.Cryptor\bin\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
+        echo Source: "REE.Fonts.Cryptor\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
+        echo Source: "REE.Packer\bin\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
+        echo Source: "REE.Packer\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
+        echo Source: "REE.Rom.Cryptor\bin\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
+        echo Source: "REE.Rom.Cryptor\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
+        echo Source: "REE.Unpacker\bin\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
+        echo Source: "REE.Unpacker\bin\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion >> iscript.iss
+        echo [Icons] >> iscript.iss
+        echo Name: "{autoprograms}\REE PAK Tool\REE Unpacker"; Filename: "{app}\REE.Unpacker.exe" >> iscript.iss
+        echo Name: "{autodesktop}\REE Unpacker"; Filename: "{app}\REE.Unpacker.exe" >> iscript.iss
+        iscc iscript.iss
+      shell: cmd
+
+    # 7. Olusacak Setup.exe dosyasını indirme paneline ekler
+    - name: Kurulum Dosyasini Sunucuya Yukle
       uses: actions/upload-artifact@v4
       with:
-        name: REE-PAK-Tool-Ciktilari
-        path: |
-          **/*.exe
-          **/*.dll
+        name: REE-PAK-Tool-Kurulum-Sihirbazi
+        path: REE_PAK_Tool_Kurulum.exe
