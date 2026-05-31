@@ -30,5 +30,11 @@ jobs:
       shell: pwsh
 
     # 4. Paketleri yüklemeyi dener
+       # Tüm .sln dosyalarını otomatik olarak bulur ve paketlerini yükler
     - name: Restore NuGet Packages
-      run: nuget restore REE.PAK.Tool.sln
+      run: |
+        nuget restore REE.Fonts.Cryptor/REE.Fonts.Cryptor.sln
+        nuget restore REE.Packer/REE.Packer.sln
+        nuget restore REE.Rom.Cryptor/REE.Rom.Cryptor.sln
+        nuget restore REE.Unpacker/REE.Unpacker.sln
+
