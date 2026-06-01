@@ -72,5 +72,5 @@ jobs:
     - name: Kurulum Dosyasini Sunucuya Yukle
       uses: actions/upload-artifact@v4
       with:
-        name: REE-PAK-Tool-Kurulum-Sihirbazi
-        path: REE_PAK_Tool_Kurulum.exe
+        name: Zeno_REE_PAK
+        path: Zeno_REE_PAK.exe
